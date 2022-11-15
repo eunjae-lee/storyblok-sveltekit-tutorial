@@ -1,0 +1,63 @@
+diff --git a/node_modules/@storyblok/svelte/StoryblokComponent.svelte b/node_modules/@storyblok/svelte/StoryblokComponent.svelte
+index 883fbb3..e28bb64 100644
+--- a/node_modules/@storyblok/svelte/StoryblokComponent.svelte
++++ b/node_modules/@storyblok/svelte/StoryblokComponent.svelte
+@@ -3,12 +3,17 @@
+ 
+   let component;
+   export let blok;
++  export let componentsMap;
+ 
+-  if (blok) {
+-    component = getComponent(blok.component);
+-  } else {
++  if (!blok) {
+     console.error("Please provide a 'blok' property to the StoryblokComponent");
+   }
++  if (!componentsMap) {
++    console.error("Please provide a 'componentsMap' property to the StoryblokComponent");
++  }
++  if (componentsMap && blok) {
++    component = getComponent(componentsMap, blok.component);
++  }
+ </script>
+ 
+ <!-- svelte-ignore missing-declaration -->
+diff --git a/node_modules/@storyblok/svelte/index.ts b/node_modules/@storyblok/svelte/index.ts
+index 691f6d3..2c74288 100644
+--- a/node_modules/@storyblok/svelte/index.ts
++++ b/node_modules/@storyblok/svelte/index.ts
+@@ -36,27 +36,16 @@ export const storyblokEditable = (node: HTMLElement, value: SbBlokData) => {
+   };
+ };
+ 
+-let storyblokApiInstance: StoryblokClient = null;
+-export const useStoryblokApi = (): StoryblokClient => {
+-  if (!storyblokApiInstance) {
+-    console.log(
+-      `You can't use getStoryblokApi if you're not loading apiPlugin.`
+-    );
+-  }
+-  return storyblokApiInstance;
+-};
+-
+-export { useStoryblokApi as getStoryblokApi };
+-
+-let componentsMap: SbSvelteComponentsMap | CallableFunction = null;
+-
+ export const storyblokInit = (options: SbSvelteSDKOptions) => {
+   const { storyblokApi } = sbInit(options);
+-  storyblokApiInstance = storyblokApi;
+-  componentsMap = options.components || {};
++
++  return {
++    storyblokApi,
++    componentsMap: options.components || {}
++  }
+ };
+ 
+-export const getComponent = (componentName: string) => {
++export const getComponent = (componentsMap: SbSvelteComponentsMap | CallableFunction, componentName: string) => {
+   let component = null;
+   component =
+     typeof componentsMap === "function"

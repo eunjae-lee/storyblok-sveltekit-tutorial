@@ -11,6 +11,6 @@
 
 <div>
 	{#if data.story}
-		<StoryblokComponent blok={data.story.content} />
+		<StoryblokComponent blok={data.story.content} componentsMap={data.componentsMap} />
 	{/if}
 </div>
